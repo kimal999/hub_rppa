@@ -906,9 +906,9 @@ class RPPA:
                 worksheet[0].insert_image('A1', experiment+'_Legend_human_Page_1.png')
                 worksheet[0].set_column(0, 2, 110)
                 worksheet[0].insert_image('B1', experiment+'_Legend_human_Page_2.png')
-        
+
             raw_list = [3,6]
-            
+
             for num in range(1,len(dfv)+1):
                 if num not in raw_list:
                     table = dfv[num]
@@ -920,14 +920,27 @@ class RPPA:
                         worksheet[num].write(0, j+1, table.columns[j], bold)
                     for i in range(0, len(table.index)):
                         worksheet[num].write(i+1, 0, table.index[i], bold)
-                    for i in range(0, len(table.index)):
+                    row_start = 0
+                    if num not in [2,5]:
                         for j in range(0, len(table.columns)):
-                            if str(table.values[i,j])=="nan":
+                            worksheet[num].write(1, j+1, (table.values[0,j]))
+                        row_start = 1
+                    for i in range(row_start, len(table.index)):
+                        for j in range(0, 4):
+                            worksheet[num].write(i+1, j+1, (table.values[i,j]))
+                    for i in range(row_start, len(table.index)):
+                        for j in range(4, len(table.columns)):
+                            #if str(table.values[i,j])=="nan":
+                            #print table.values[i,j]
+                            if (np.isnan(np.float64(table.values[i,j]))) | (np.isinf(np.float64(table.values[i,j]))):
                                 #print "yes"
-                                worksheet[num].write(i+1, j+1, ("NA"))
+                                worksheet[num].write_string(i+1, j+1, ("NA"))
                             else:
-                                worksheet[num].write(i+1, j+1, (table.values[i,j]))
-                                #worksheet[num].write(i+1, j+1, (table.values[i,j]))
+                                try:
+                                    worksheet[num].write(i+1, j+1, np.float64(table.values[i,j]))
+                                except:
+                                    print (table.values[i,j])
+                                    worksheet[num].write(i+1, j+1, (table.values[i,j]))  
 
                 else:
                     table = dfv[num]
@@ -2372,7 +2385,7 @@ def main():
 
     rppa = RPPA(slide_table, ant_dbase)
 
-    norm_data = rppa.normalize(args.path,start,end,pmt_settings,prot_data,debug)
+    """norm_data = rppa.normalize(args.path,start,end,pmt_settings,prot_data,debug)
     #qnorm_data = rppa.norm_data(args.qpath, args.qstart, pmt_settings)
     raw_data = rppa.raw_data(args.path, start, end, pmt_settings)
     flag_data = rppa.flag_data(args.path, start, end, pmt_settings)
@@ -2380,7 +2393,7 @@ def main():
     for pmt in pmt_settings:
         norm_data[pmt].to_csv(experiment+"_Norm_"+pmt+".xls", sep="\t", na_rep='NA')
         raw_data[pmt].to_csv(experiment+"_Raw_"+pmt+".xls", sep="\t", na_rep='NA')
-        flag_data[pmt].to_csv(experiment+"_Flag_"+pmt+".xls", sep="\t", na_rep='NA')
+        flag_data[pmt].to_csv(experiment+"_Flag_"+pmt+".xls", sep="\t", na_rep='NA')"""
 
     for pmt in pmt_settings:
         print pmt
@@ -2392,13 +2405,13 @@ def main():
 
     list1 = [["Ctrl_IgGmix", "0.", "blank.", "Ctrl_GridHP"], []]
 
-    for pmt in pmt_settings:
+    """for pmt in pmt_settings:
         rppa.pi_data(experiment+"_Norm_"+pmt+".xls", sample_table_file,
                      experiment, list1, conf_file)
         rppa.pi_data(experiment+"_Raw_"+pmt+".xls", sample_table_file,
                      experiment, list1, conf_file)
         rppa.pi_data(experiment+"_Flag_"+pmt+".xls", sample_table_file,
-                     experiment, list1, conf_file)
+                     experiment, list1, conf_file)"""
 
     pi_list = []
     mouse_pi_list = []
